@@ -1,0 +1,3 @@
+* Create basic models for every object at VCard
+* Implement Serialization and Deserialization for models
+* Create a shortcut implementation 
