@@ -59,8 +59,8 @@ impl VCardArray {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use crate::{VCardArray, VElement};
+    use std::collections::HashMap;
 
     #[test]
     fn sample_card() {
