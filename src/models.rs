@@ -12,8 +12,11 @@ pub enum VElement {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", untagged)]
 pub enum VCard {
-    VElement(String),
-    VElementArray(Vec<Vec<VElement>>),
+    Element(String),
+    ElementArray(Vec<Vec<VElement>>),
 }
 
-pub type VCardArray = Vec<VCard>;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum VCardField {
+    Version,
+}
