@@ -23,7 +23,7 @@ VCardArray generatsion biron kutubxona mavjud bo'lmaganligi sababli o'zimizning 
 
 - Tayyor "binding"lar
 - Serde yordamida serializatsiyadan o'tgan `struct` lar
-- (Yordamchi macroslar va kabi qulayliklar keyinchalik qo'shish niyat qilingan)
+- (Yordamchi macroslar va shu kabi qulayliklar keyinchalik qo'shish niyat qilingan)
 
 > Bu proyekt hozir sinov bosqichidan o'tmoqda. Agarda bironta xatolikka duchor
 > bo'lsangiz, xatolik haqida [e'lon](https://github.com/uzinfocom-org/vicardi/issues/new)
