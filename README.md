@@ -31,4 +31,13 @@ VCardArray generatsion biron kutubxona mavjud bo'lmaganligi sababli o'zimizning 
 
 ## O'rnatish
 
-Ushbu paket hali cargo paketlar registriga qo'shilmagan. Yangiliklar kutib qoling!
+Ushbu qatorni Cargo.toml faylingizga joylashtiring:
+
+```toml
+[dependencies]
+vicardi = "0.1.1"
+```
+
+## Litsenziya
+    
+Ushbu kutubxona GPL-3.0 litsenziya ostida distributsiya qilinadi. Ko'proq ma'lumot uchun [LICENSE](./LICENSE) ko'zdan kechiring!
