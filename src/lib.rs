@@ -144,7 +144,7 @@ mod tests {
             locality: Some("Salzburg".to_string()),
             region: Some("Salzburg".to_string()),
             postal_code: Some(5020.to_string()),
-            country: None
+            country: None,
         });
 
         let result =
