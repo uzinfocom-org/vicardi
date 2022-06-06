@@ -119,7 +119,7 @@ impl VCardArray {
 
 #[cfg(test)]
 mod tests {
-    use crate::VCardArray;
+    use crate::{Location, VCardArray};
 
     #[test]
     fn sample_array() {
@@ -127,10 +127,28 @@ mod tests {
 
         vcard.add_fn("John".to_string(), "Doe".to_string());
 
-        println!("{}", vcard.to_json(true));
-
         let result =
             "[\"vcard\",[[\"version\",{},\"text\",\"4.0\"],[\"fn\",{},\"text\",\"John Doe\"]]]"
+                .to_string();
+        assert_eq!(vcard.to_json(false), result);
+    }
+
+    #[test]
+    fn test_adr() {
+        let mut vcard = VCardArray::new();
+
+        vcard.add_address(Location {
+            post_office_box: None,
+            extended_address: None,
+            street_address: Some("Jakob-Haringer-Strasse 8/V".to_string()),
+            locality: Some("Salzburg".to_string()),
+            region: Some("Salzburg".to_string()),
+            postal_code: Some(5020.to_string()),
+            country: None
+        });
+
+        let result =
+            "[\"vcard\",[[\"version\",{},\"text\",\"4.0\"],[\"adr\",{\"cc\":\"AT\"},\"text\",[\"\",\"\",\"Jakob-Haringer-Strasse 8/V\",\"Salzburg\",\"Salzburg\",\"5020\",\"\"]]]]"
                 .to_string();
         assert_eq!(vcard.to_json(false), result);
     }
