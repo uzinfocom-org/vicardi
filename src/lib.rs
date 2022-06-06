@@ -1,4 +1,4 @@
-use crate::models::{VCard, VElement};
+use crate::models::{Location, VCard, VElement};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -54,7 +54,7 @@ impl VCardArray {
         )
     }
 
-    pub fn add_address(&mut self, street: String, city: String, country: String) {
+    pub fn add_address(&mut self, location: Location) {
         let mut properties: HashMap<String, String> = HashMap::new();
 
         properties.insert("cc".to_string(), "AT".to_string());
@@ -63,7 +63,21 @@ impl VCardArray {
             "adr".to_string(),
             properties,
             "text".to_string(),
-            VElement::Array(vec![street, city, country]),
+            VElement::Array(vec![
+                location
+                    .post_office_box
+                    .unwrap_or_else(|| "".parse().unwrap()), // the post office box;
+                location
+                    .extended_address
+                    .unwrap_or_else(|| "".parse().unwrap()), // the extended address (e.g., apartment or suite number);
+                location
+                    .street_address
+                    .unwrap_or_else(|| "".parse().unwrap()), // the street address;
+                location.locality.unwrap_or_else(|| "".parse().unwrap()), // the locality (e.g., city);
+                location.region.unwrap_or_else(|| "".parse().unwrap()), // the region (e.g., state or province);
+                location.postal_code.unwrap_or_else(|| "".parse().unwrap()), // the postal code;
+                location.country.unwrap_or_else(|| "".parse().unwrap()), // the country name (full name);
+            ]),
         )
     }
 

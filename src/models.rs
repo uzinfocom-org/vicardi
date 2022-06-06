@@ -20,3 +20,14 @@ pub enum VCard {
 pub enum VCardField {
     Version,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Location {
+    pub post_office_box: Option<String>,
+    pub extended_address: Option<String>,
+    pub street_address: Option<String>,
+    pub locality: Option<String>,
+    pub region: Option<String>,
+    pub postal_code: Option<String>,
+    pub country: Option<String>,
+}
