@@ -55,9 +55,13 @@ impl VCardArray {
     }
 
     pub fn add_address(&mut self, street: String, city: String, country: String) {
+        let mut properties: HashMap<String, String> = HashMap::new();
+
+        properties.insert("cc".to_string(), "AT".to_string());
+
         self.add_vcard(
             "adr".to_string(),
-            HashMap::new(),
+            properties,
             "text".to_string(),
             VElement::Array(vec![street, city, country]),
         )
@@ -81,7 +85,7 @@ impl VCardArray {
         self.add_vcard(
             "tel".to_string(),
             properties,
-            "text".to_string(),
+            "uri".to_string(),
             VElement::Element(format!("tel:{}", number)),
         )
     }
