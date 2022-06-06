@@ -11,10 +11,17 @@ pub struct VCardArray {
 
 impl VCardArray {
     pub fn new() -> Self {
-        VCardArray { elements: vec![] }
+        VCardArray { elements: vec![
+            vec![
+                VElement::Element("version".to_string()),
+                VElement::Dictionary(HashMap::new()),
+                VElement::Element("text".to_string()),
+                VElement::Element("4.0".to_string()),
+            ],
+        ] }
     }
 
-    pub fn add_vcard(
+    fn add_vcard(
         &mut self,
         category: String,
         properties: HashMap<String, String>,
@@ -27,6 +34,60 @@ impl VCardArray {
             VElement::Element(types),
             value,
         ]);
+    }
+
+    pub fn add_fn(&mut self, name: String, surname: String) {
+        self.add_vcard(
+            "fn".to_string(),
+            HashMap::new(),
+            "text".to_string(),
+            VElement::Element(format!("{} {}", name, surname)),
+        )
+    }
+
+    pub fn add_org(&mut self, name: String, unit: String) {
+        self.add_vcard(
+            "org".to_string(),
+            HashMap::new(),
+            "text".to_string(),
+            VElement::Element(format!("{} {}", name, unit)),
+        )
+    }
+
+    pub fn add_address(&mut self, street: String, city: String, country: String) {
+        self.add_vcard(
+            "adr".to_string(),
+            HashMap::new(),
+            "text".to_string(),
+            VElement::Array(vec![
+                street,
+                city,
+                country,
+            ]),
+        )
+    }
+
+    pub fn add_tel(&mut self, types: &str, number: String) {
+        let mut properties: HashMap<String, String> = HashMap::new();
+
+        match types {
+            "v" => {
+                properties.insert("type".to_string(), "voice".to_string());
+            },
+            "f" => {
+                properties.insert("type".to_string(), "fax".to_string());
+            },
+            _ => {
+                properties.insert("type".to_string(), "undefined".to_string());
+            },
+        }
+
+        self.add_vcard(
+            "tel".to_string(),
+            properties,
+            "text".to_string(),
+            VElement::Element(format!("tel:{}", number)),
+        )
     }
 
     pub fn to_json(&self, pretty: bool) -> String {
@@ -44,23 +105,17 @@ impl VCardArray {
 
 #[cfg(test)]
 mod tests {
-    use crate::{VCardArray, VElement};
-    use std::collections::HashMap;
+    use crate::{VCardArray};
 
     #[test]
     fn sample_card() {
         let mut vcard = VCardArray::new();
 
-        vcard.add_vcard(
-            "version".to_string(),
-            HashMap::new(),
-            "text".to_string(),
-            VElement::Element("4.0".to_string()),
-        );
+        vcard.add_fn("John".to_string(), "Doe".to_string());
 
         println!("{}", vcard.to_json(true));
 
-        let result = "[\"vcard\",[[\"version\",{},\"text\",\"4.0\"]]]".to_string();
+        let result = "[\"vcard\",[[\"version\",{},\"text\",\"4.0\"],[\"fn\",{},\"text\",\"John Doe\"]]]".to_string();
         assert_eq!(vcard.to_json(false), result);
     }
 }

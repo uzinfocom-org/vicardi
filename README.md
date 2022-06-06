@@ -12,7 +12,7 @@ Serde serializatsiya va deserializatsiyasi yordamida qilingan VCard JSON generat
 
 ## Haqida
 
-Bizning CCTLD tomonidan ishlab chiqilgan sistema ICAN servislari bilan muloqot qilish uchun JCard (VCardArray) formatini ishlatadi. Afsuski,
+Bizning CCTLD tomonidan ishlab chiqilgan sistema ICANN servislari bilan muloqot qilish uchun JCard (VCardArray) formatini ishlatadi. Afsuski,
 VCardArray generatsion biron kutubxona mavjud bo'lmaganligi sababli o'zimizning kutubxonamizni ishlab chiqdik va ushbu kutubxonani O'zbekistondagi
 .uz TLD domenlarini ishlashini ham tez, ham nustahkam qilib RDAP tizimini yaratishda ishlatdik.
 
