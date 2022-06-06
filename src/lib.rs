@@ -108,7 +108,7 @@ mod tests {
     use crate::VCardArray;
 
     #[test]
-    fn sample_card() {
+    fn sample_array() {
         let mut vcard = VCardArray::new();
 
         vcard.add_fn("John".to_string(), "Doe".to_string());
