@@ -29,33 +29,18 @@ impl VCardArray {
         ]);
     }
 
-    pub fn to_json(&self) -> String {
+    pub fn to_json(&self, pretty: bool) -> String {
         let array: Vec<VCard> = vec![
             VCard::Element("vcard".to_string()),
             VCard::ElementArray(self.elements.clone()),
         ];
 
-        serde_json::to_string_pretty(&array).unwrap()
+        match pretty {
+            true => serde_json::to_string_pretty(&array).unwrap(),
+            false => serde_json::to_string(&array).unwrap(),
+        }
     }
 }
-
-// pub fn vcardarray<F, U, C, K>() -> Vec<VCard> {
-//     let mut result: Vec<VCard> = Vec::new();
-//     let mut elements: Vec<Vec<VElement>> = Vec::new();
-//
-//     result.push(VCard::Element("vcard".to_string()));
-//
-//     elements.push(vec![
-//         VElement::Element("version".to_string()),
-//         VElement::Dictionary(HashMap::new()),
-//         VElement::Element("text".to_string()),
-//         VElement::Element("4.0".to_string()),
-//     ]);
-//
-//     result.push(VCard::ElementArray(elements));
-//
-//     result
-// }
 
 #[cfg(test)]
 mod tests {
@@ -73,9 +58,9 @@ mod tests {
             VElement::Element("4.0".to_string()),
         );
 
-        println!("{}", vcard.to_json());
+        println!("{}", vcard.to_json(true));
 
-        let result = "[\n  \"vcard\",\n  [\n    [\n      \"version\",\n      {},\n      \"text\",\n      \"4.0\"\n    ]\n  ]\n]".to_string();
-        assert_eq!(vcard.to_json(), result);
+        let result = "[\"vcard\",[[\"version\",{},\"text\",\"4.0\"]]]".to_string();
+        assert_eq!(vcard.to_json(false), result);
     }
 }

@@ -2,6 +2,15 @@
 name = "vicardi"
 version = "0.1.0"
 edition = "2021"
+homepage = "https://oss.uzinfocom.uz"
+repository = "https://github.com/uzinfocom-org/vicardi"
+description = "JSON VCardArray Generator that uses Serde"
+authors = ["UwUssimo Robinson <uwussimo@icloud.com> (https://uwussi.moe)"]
+keywords = ["jcard", "vcardarray", "serde"]
+readme = "readme.md"
+categories = ["data-structures"]
+license = "GPL-3.0"
+exclude = ["target", ".github"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
