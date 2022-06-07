@@ -1,4 +1,4 @@
-use crate::models::{Location, VCard, VElement};
+use crate::models::{Location, Telephone, VCard, VElement};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -87,18 +87,15 @@ impl VCardArray {
         )
     }
 
-    pub fn add_tel(&mut self, types: &str, number: String) {
+    pub fn add_tel(&mut self, types: Telephone, number: String) {
         let mut properties: HashMap<String, String> = HashMap::new();
 
         match types {
-            "v" => {
+            Telephone::Voice => {
                 properties.insert("type".to_string(), "voice".to_string());
             }
-            "f" => {
+            Telephone::Fax => {
                 properties.insert("type".to_string(), "fax".to_string());
-            }
-            _ => {
-                properties.insert("type".to_string(), "undefined".to_string());
             }
         }
 
@@ -108,6 +105,15 @@ impl VCardArray {
             "uri".to_string(),
             VElement::Element(format!("tel:{}", number)),
         )
+    }
+
+    pub fn add_email(&mut self, email: String) {
+        self.add_vcard(
+            "email".to_string(),
+            HashMap::new(),
+            "text".to_string(),
+            VElement::Element(email),
+        );
     }
 
     pub fn to_json(&self, pretty: bool) -> String {
@@ -128,7 +134,7 @@ mod tests {
     use crate::{Location, VCardArray};
 
     #[test]
-    fn sample_array() {
+    fn test_fn() {
         let mut vcard = VCardArray::new();
 
         vcard.add_fn("John".to_string(), "Doe".to_string());
@@ -155,6 +161,18 @@ mod tests {
 
         let result =
             "[\"vcard\",[[\"version\",{},\"text\",\"4.0\"],[\"adr\",{\"cc\":\"AT\"},\"text\",[\"\",\"\",\"Jakob-Haringer-Strasse 8/V\",\"Salzburg\",\"Salzburg\",\"5020\",\"\"]]]]"
+                .to_string();
+        assert_eq!(vcard.to_json(false), result);
+    }
+
+    #[test]
+    fn test_email() {
+        let mut vcard = VCardArray::new();
+
+        vcard.add_email("sample@mail.com".to_string());
+
+        let result =
+            "[\"vcard\",[[\"version\",{},\"text\",\"4.0\"],[\"email\",{},\"text\",\"sample@mail.com\"]]]"
                 .to_string();
         assert_eq!(vcard.to_json(false), result);
     }

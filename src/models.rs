@@ -31,3 +31,9 @@ pub struct Location {
     pub postal_code: Option<String>,
     pub country: Option<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Telephone {
+    Fax,
+    Voice,
+}
