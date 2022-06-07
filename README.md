@@ -35,7 +35,7 @@ Ushbu qatorni Cargo.toml faylingizga joylashtiring:
 
 ```toml
 [dependencies]
-vicardi = "0.1.3"
+vicardi = "0.1.7"
 ```
 
 ## Litsenziya
