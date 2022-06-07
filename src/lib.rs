@@ -45,12 +45,16 @@ impl VCardArray {
         )
     }
 
-    pub fn add_org(&mut self, name: String, unit: String) {
+    pub fn add_org(&mut self, name: Option<String>, unit: Option<String>) {
         self.add_vcard(
             "org".to_string(),
             HashMap::new(),
             "text".to_string(),
-            VElement::Element(format!("{} {}", name, unit)),
+            VElement::Element(format!(
+                "{} {}",
+                name.unwrap_or_else(|| "".to_string()),
+                unit.unwrap_or_else(|| "".to_string())
+            )),
         )
     }
 
@@ -59,24 +63,26 @@ impl VCardArray {
 
         properties.insert("cc".to_string(), "AT".to_string());
 
+        // Array pn given order
+        // the post office box;
+        // the extended address (e.g., apartment or suite number);
+        // the street address;
+        // the locality (e.g., city);
+        // the region (e.g., state or province);
+        // the postal code;
+        // the country name (full name);
         self.add_vcard(
             "adr".to_string(),
             properties,
             "text".to_string(),
             VElement::Array(vec![
-                location
-                    .post_office_box
-                    .unwrap_or_else(|| "".parse().unwrap()), // the post office box;
-                location
-                    .extended_address
-                    .unwrap_or_else(|| "".parse().unwrap()), // the extended address (e.g., apartment or suite number);
-                location
-                    .street_address
-                    .unwrap_or_else(|| "".parse().unwrap()), // the street address;
-                location.locality.unwrap_or_else(|| "".parse().unwrap()), // the locality (e.g., city);
-                location.region.unwrap_or_else(|| "".parse().unwrap()), // the region (e.g., state or province);
-                location.postal_code.unwrap_or_else(|| "".parse().unwrap()), // the postal code;
-                location.country.unwrap_or_else(|| "".parse().unwrap()), // the country name (full name);
+                location.post_office_box.unwrap_or_else(|| "".to_string()),
+                location.extended_address.unwrap_or_else(|| "".to_string()),
+                location.street_address.unwrap_or_else(|| "".to_string()),
+                location.locality.unwrap_or_else(|| "".to_string()),
+                location.region.unwrap_or_else(|| "".to_string()),
+                location.postal_code.unwrap_or_else(|| "".to_string()),
+                location.country.unwrap_or_else(|| "".to_string()),
             ]),
         )
     }
