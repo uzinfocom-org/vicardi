@@ -10,7 +10,7 @@ authors = [
   "Maksym Kuzmin <m.kuzmin.r@gmail.com> (https://github.com/m-kuzmin)",
 ]
 keywords = ["jcard", "vcardarray", "serde"]
-readme = "readme.md"
+readme = "README.md"
 categories = ["data-structures"]
 license = "GPL-3.0"
 exclude = ["target", ".github", "flake.lock", "**/*.nix"]
