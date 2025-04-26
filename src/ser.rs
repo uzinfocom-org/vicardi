@@ -14,7 +14,7 @@ impl Serialize for Vcard {
         vcard.serialize_element("vcard")?;
 
         struct VersionPrefix<'a, T>(&'a str, &'a [T]);
-        impl<'a, T> Serialize for VersionPrefix<'a, T>
+        impl<T> Serialize for VersionPrefix<'_, T>
         where
             T: Serialize,
         {

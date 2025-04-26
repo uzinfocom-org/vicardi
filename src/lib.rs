@@ -158,7 +158,6 @@ impl Property {
     /// # Example
     ///
     /// ```rust
-    /// # use vicardi::models::*;
     /// # use vicardi::*;
     /// # use serde_json::json;
     /// # fn main() -> anyhow::Result<()> {

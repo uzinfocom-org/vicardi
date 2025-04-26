@@ -125,7 +125,7 @@ impl<'de> Deserialize<'de> for Property {
                 /// The number of elements before the `values` array starts at this level in the property
                 const FIXED_ELEMENTS: usize = 3;
 
-                let mut counter = (0..).into_iter();
+                let mut counter = 0..;
                 let mut len_err = || {
                     Err(A::Error::invalid_length(
                         counter.next().unwrap(),
