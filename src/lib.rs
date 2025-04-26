@@ -2,6 +2,7 @@ use crate::models::{Address, Telephone};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+mod de;
 pub mod models;
 mod ser;
 
@@ -115,7 +116,10 @@ impl Property {
     ///     ]
     /// ]);
     ///
-    /// assert_eq!(serde_json::to_value(vcard)?, json);
+    /// let parsed: Vcard = serde_json::from_value(json.clone())?;
+    ///
+    /// assert_eq!(serde_json::to_value(&vcard)?, json);
+    /// assert_eq!(parsed, vcard);
     /// # Ok(())
     /// # }
     /// ```
@@ -175,7 +179,10 @@ impl Property {
     ///     ]
     /// ]);
     ///
-    /// assert_eq!(serde_json::to_value(vcard)?, json);
+    /// let parsed: Vcard = serde_json::from_value(json.clone())?;
+    ///
+    /// assert_eq!(serde_json::to_value(&vcard)?, json);
+    /// assert_eq!(parsed, vcard);
     /// # Ok(())
     /// # }
     /// ```
@@ -207,7 +214,10 @@ impl Property {
     ///     ]
     /// ]);
     ///
-    /// assert_eq!(serde_json::to_value(vcard)?, json);
+    /// let parsed: Vcard = serde_json::from_value(json.clone())?;
+    ///
+    /// assert_eq!(serde_json::to_value(&vcard)?, json);
+    /// assert_eq!(parsed, vcard);
     /// # Ok(())
     /// # }
     /// ```
@@ -235,7 +245,10 @@ impl Property {
     ///     ]
     /// ]);
     ///
-    /// assert_eq!(serde_json::to_value(vcard)?, json);
+    /// let parsed: Vcard = serde_json::from_value(json.clone())?;
+    ///
+    /// assert_eq!(serde_json::to_value(&vcard)?, json);
+    /// assert_eq!(parsed, vcard);
     /// # Ok(())
     /// # }
     /// ```
@@ -267,7 +280,10 @@ impl Property {
     ///     ]
     /// ]);
     ///
-    /// assert_eq!(serde_json::to_value(vcard)?, json);
+    /// let parsed: Vcard = serde_json::from_value(json.clone())?;
+    ///
+    /// assert_eq!(serde_json::to_value(&vcard)?, json);
+    /// assert_eq!(parsed, vcard);
     /// # Ok(())
     /// # }
     /// ```

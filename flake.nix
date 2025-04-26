@@ -11,21 +11,21 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-naersk.url="github:nix-community/naersk";
+    naersk.url = "github:nix-community/naersk";
   };
 
   outputs = {
     self,
+    systems,
     flake-utils,
     nixpkgs,
-    naersk
-    ...
+    naersk,
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (nixpkgs) lib;
-	naersk'=naersk.lib.${system};
+        naersk' = naersk.lib.${system};
       in {
         formatter = pkgs.alejandra;
 
