@@ -6,8 +6,8 @@ homepage = "https://oss.uzinfocom.uz"
 repository = "https://github.com/uzinfocom-org/vicardi"
 description = "JSON VCardArray Generator that uses Serde"
 authors = [
-    "UwUssimo Robinson <uwussimo@icloud.com> (https://uwussi.moe)",
-    "Maksym Kuzmin <m.kuzmin.r@gmail.com> (https://github.com/m-kuzmin)",
+  "Sokhibjon Orzikulov <sakhib@orzklv.uz> (https://orzklv.uz)",
+  "Maksym Kuzmin <m.kuzmin.r@gmail.com> (https://github.com/m-kuzmin)",
 ]
 keywords = ["jcard", "vcardarray", "serde"]
 readme = "readme.md"
