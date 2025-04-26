@@ -1,10 +1,58 @@
-use crate::models::{Address, Telephone};
+//!<header>
+//!<img src="https://raw.githubusercontent.com/uzinfocom-org/website/main/src/images/logo.svg" alt="logo" height="100" align="left" style="padding-right: 1em;">
+//!<h1 style="display: inline">Vicardi</h1>
+//!
+//!jCard (vCard in JSON format) serde serialization and deserialization.
+//!
+//![![GitHub top language](https://img.shields.io/github/languages/top/uzinfocom-org/vicardi?style=flat-square&logo=github)](https://github.com/uzinfocom-org/vicardi)
+//![![Chat](https://img.shields.io/badge/Chat-grey?style=flat-square&logo=telegram)](https://t.me/xinuxuz)
+//![![Test CI](https://github.com/uzinfocom-org/vicardi/actions/workflows/test.yml/badge.svg)](https://github.com/uzinfocom-org/vicardi/actions/workflows/test.yml)
+//!
+//!</header>
+//!
+//! # The jCard format
+//!
+//! The jCard format is quite simple. A jCard is an arrary with 2 elements:
+//!
+//! - The string "vcard"
+//! - A nested array with the vCard properties
+//!   - Each element in the array is another array with at least 4 elements:
+//!     - Name (e.g. "fn")
+//!     - Properties (a string to string map)
+//!     - Value type (e.g. "text")
+//!     - 1+ values of that property
+//!
+//! ```json
+//! [
+//!   "vcard",
+//!   [
+//!     ["version", {}, "text", "4.0"],
+//!     ["fn", {}, "text", "Vicardi"],
+//!     ["categories", {}, "text", "rust", "serde"],
+//!     ...
+//!   ]
+//! ]
+//! ```
+//!
+//! The entire array is represented by the [`Vcard`] type. Each property is a [`Property`] and it can have 1 or more
+//! [`PropertyValue`]s.
+//!
+//! **A note on the version property:**
+//!
+//! The RFC requires that the first element in the array is a version property. At the moment, this crate does not
+//! enforce any rules regarding the position or number of version properties. However, the first occurance of the
+//! version property is removed from the array during deserialization. The value of the version is stored in the
+//! [`Vcard::version`] field.
+//!
+//! During serialization, the value of [`Vcard::version`] is placed at index 0 in the properties array.
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 mod de;
-pub mod models;
 mod ser;
+
+pub use structured::*;
+pub mod structured;
 
 /// A jCard serde type
 #[derive(Debug, Clone, PartialEq)]
@@ -56,6 +104,15 @@ pub struct Property {
     pub values: Vec<PropertyValue>,
 }
 
+/// A [`Property::values`] can either be a simple string or an array of strings.
+///
+/// ```json
+/// ["fn", {}, "text", "Vicardi"]
+///
+/// ["org", {}, "text",
+///     ["Organization", "Department", "etc"]
+/// ]
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValue {
@@ -132,7 +189,6 @@ impl Property {
 
     /// # Example
     /// ```rust
-    /// # use vicardi::models::*;
     /// # use vicardi::*;
     /// # use serde_json::json;
     /// # fn main() -> anyhow::Result<()> {
@@ -193,11 +249,9 @@ impl Property {
         Self::new("adr", parameters, "text", address)
     }
 
-    ///
-    /// /// # Example
+    /// # Example
     /// /**
     /// ```rust
-    /// # use vicardi::models::*;
     /// # use vicardi::*;
     /// # use serde_json::json;
     /// # fn main() -> anyhow::Result<()> {
@@ -230,7 +284,6 @@ impl Property {
 
     /// # Example
     /// ```rust
-    /// # use vicardi::models::*;
     /// # use vicardi::*;
     /// # use serde_json::json;
     /// # fn main() -> anyhow::Result<()> {
@@ -265,7 +318,6 @@ impl Property {
 
     /// # Example
     /// ```rust
-    /// # use vicardi::models::*;
     /// # use vicardi::*;
     /// # use serde_json::json;
     /// # fn main() -> anyhow::Result<()> {

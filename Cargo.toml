@@ -1,22 +1,24 @@
 [package]
 name = "vicardi"
-version = "0.1.7"
+version = "0.2.0"
 edition = "2021"
 homepage = "https://oss.uzinfocom.uz"
 repository = "https://github.com/uzinfocom-org/vicardi"
 description = "JSON VCardArray Generator that uses Serde"
-authors = ["UwUssimo Robinson <uwussimo@icloud.com> (https://uwussi.moe)"]
+authors = [
+    "UwUssimo Robinson <uwussimo@icloud.com> (https://uwussi.moe)",
+    "Maksym Kuzmin <m.kuzmin.r@gmail.com> (https://github.com/m-kuzmin)",
+]
 keywords = ["jcard", "vcardarray", "serde"]
 readme = "readme.md"
 categories = ["data-structures"]
 license = "GPL-3.0"
-exclude = ["target", ".github"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+exclude = ["target", ".github", "flake.lock", "**/*.nix"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_with = "3.12.0"
+thiserror = "2.0.12"
 
 [dev-dependencies]
 serde_json = "1.0"

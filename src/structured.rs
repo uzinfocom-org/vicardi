@@ -1,6 +1,8 @@
+/// Helper types to construct structured properties
 use std::{convert::Infallible, fmt::Display, str::FromStr};
 
 use serde_with::{DeserializeFromStr, SerializeDisplay};
+use thiserror::Error;
 
 use crate::{Property, PropertyValue};
 
@@ -39,6 +41,50 @@ impl From<Address> for PropertyValue {
         )
     }
 }
+
+impl From<[String; 7]> for Address {
+    fn from(value: [String; 7]) -> Self {
+        let [post_office_box, extended_address, street_address, locality, region, postal_code, country] =
+            value;
+
+        Self {
+            post_office_box,
+            extended_address,
+            street_address,
+            locality,
+            region,
+            postal_code,
+            country,
+        }
+    }
+}
+
+impl TryFrom<Vec<String>> for Address {
+    type Error = InvalidStructuredAddress;
+
+    fn try_from(value: Vec<String>) -> Result<Self, Self::Error> {
+        let Ok(
+            [post_office_box, extended_address, street_address, locality, region, postal_code, country],
+        ) = TryInto::<[String; 7]>::try_into(value)
+        else {
+            return Err(InvalidStructuredAddress);
+        };
+
+        Ok(Self {
+            post_office_box,
+            extended_address,
+            street_address,
+            locality,
+            region,
+            postal_code,
+            country,
+        })
+    }
+}
+
+#[derive(Error, Debug)]
+#[error("Invalid strucutured address")]
+pub struct InvalidStructuredAddress;
 
 impl From<Address> for Property {
     fn from(address: Address) -> Self {

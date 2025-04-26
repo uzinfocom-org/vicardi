@@ -1,4 +1,7 @@
-use serde::{ser::SerializeSeq as _, Serialize};
+use serde::{
+    ser::{Error, SerializeSeq as _},
+    Serialize,
+};
 
 use crate::{Property, Vcard};
 
@@ -41,6 +44,12 @@ impl Serialize for Property {
     where
         S: serde::Serializer,
     {
+        if self.values.is_empty() {
+            return Err(S::Error::custom(
+                "at least one value must be present in a property",
+            ));
+        }
+
         let mut seq = serializer.serialize_seq(Some(3 + self.values.len()))?;
 
         seq.serialize_element(&self.name)?;
