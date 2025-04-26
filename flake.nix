@@ -1,31 +1,25 @@
 {
-  description = "vicardi - Rust jCard parser";
+  description = "Vicardi - Rust jCard parser";
 
   inputs = {
-    systems.url = "github:nix-systems/x86_64-linux";
-
-    flake-utils = {
-      url = "github:numtide/flake-utils";
-      inputs.systems.follows = "systems";
-    };
-
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+    flake-utils.url = "github:numtide/flake-utils";
 
     naersk.url = "github:nix-community/naersk";
   };
 
   outputs = {
     self,
-    systems,
     flake-utils,
     nixpkgs,
     naersk,
   }:
-    flake-utils.lib.eachDefaultSystem (
+      flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (nixpkgs) lib;
-        naersk' = naersk.lib.${system};
+        naersk = naersk.lib.${system};
       in {
         formatter = pkgs.alejandra;
 
