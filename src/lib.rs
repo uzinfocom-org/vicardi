@@ -144,6 +144,12 @@ pub struct Property {
 /// > The array element values MUST have the primitive type that matches the jCard type identifier. In RFC6350,
 /// > there are only structured text values and thus only JSON strings are used. For example, extensions may define
 /// > structured number or boolean values, where JSON number or boolean types MUST be used.
+/// >
+/// > ...
+/// >
+/// > Although it is allowed for a structured property value to hold just one component, it is RECOMMENDED to represent
+/// > it as a single text value instead, omitting the array completely.  Nevertheless, a simple implementation MAY
+/// > choose to retain the array, with a single text value as its element.
 ///
 /// ```rust
 /// # use vicardi::*;
