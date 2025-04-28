@@ -1,9 +1,9 @@
 use serde::{
-    de::{Error, Unexpected, Visitor},
+    de::{Error, MapAccess, Unexpected, Visitor},
     Deserialize,
 };
 
-use crate::{Property, PropertyValue, Vcard};
+use crate::{Parameters, Property, PropertyValue, Vcard};
 
 impl<'de> Deserialize<'de> for Vcard {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -56,22 +56,34 @@ impl<'de> Deserialize<'de> for Vcard {
 
                     version_index = Some(i);
 
-                    version = match property.values.as_slice() {
-                        [PropertyValue::String(_)] => {
-                            let PropertyValue::String(moved_string) = property.values.remove(0)
-                            else {
-                                unreachable!()
-                            };
-                            moved_string
+                    const VERSION_TYPE: &&str = &"a string version property";
+
+                    let get_str = |value| match value {
+                        PropertyValue::String(s) => Ok(s),
+
+                        PropertyValue::Bool(boolean) => Err(A::Error::invalid_type(
+                            Unexpected::Bool(boolean),
+                            VERSION_TYPE,
+                        )),
+
+                        PropertyValue::Float(float) => Err(A::Error::invalid_type(
+                            Unexpected::Float(float),
+                            VERSION_TYPE,
+                        )),
+
+                        PropertyValue::Integer(int) => Err(A::Error::invalid_type(
+                            Unexpected::Signed(int),
+                            VERSION_TYPE,
+                        )),
+
+                        PropertyValue::Structured(_) => {
+                            Err(A::Error::invalid_type(Unexpected::Seq, VERSION_TYPE))
                         }
+                    };
+
+                    version = match property.values.as_slice() {
                         [PropertyValue::Structured(structured)] => match structured.as_slice() {
-                            [_] => {
-                                let PropertyValue::String(moved_string) = property.values.remove(0)
-                                else {
-                                    unreachable!()
-                                };
-                                moved_string
-                            }
+                            [_] => get_str(property.values.remove(0))?,
 
                             [] | [_, _, ..] => {
                                 return Err(A::Error::invalid_length(
@@ -80,6 +92,9 @@ impl<'de> Deserialize<'de> for Vcard {
                                 ))
                             }
                         },
+
+                        [_not_structured] => get_str(property.values.remove(0))?,
+
                         [] | [_, _, ..] => {
                             return Err(A::Error::invalid_length(
                                 property.values.len(),
@@ -136,7 +151,7 @@ impl<'de> Deserialize<'de> for Property {
                 let Some(name) = seq.next_element()? else {
                     return len_err();
                 };
-                let Some(parameters) = seq.next_element()? else {
+                let Some(MapToOneOrMany(parameters)) = seq.next_element()? else {
                     return len_err();
                 };
                 let Some(value_type) = seq.next_element()? else {
@@ -168,6 +183,50 @@ impl<'de> Deserialize<'de> for Property {
             }
         }
 
+        struct ParametersVisitor;
+        struct MapToOneOrMany(Parameters);
+
+        impl<'de> Deserialize<'de> for MapToOneOrMany {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                deserializer.deserialize_map(ParametersVisitor)
+            }
+        }
+
+        impl<'de> Visitor<'de> for ParametersVisitor {
+            type Value = MapToOneOrMany;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a map from string to one or multiple strings")
+            }
+
+            fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+            where
+                M: MapAccess<'de>,
+            {
+                let mut map = Parameters::with_capacity(access.size_hint().unwrap_or(0));
+
+                #[derive(Deserialize)]
+                #[serde(untagged)]
+                enum Veclike {
+                    One(String),
+                    Many(Vec<String>),
+                }
+
+                while let Some((key, value)) = access.next_entry()? {
+                    let value = match value {
+                        Veclike::One(string) => vec![string],
+                        Veclike::Many(many) => many,
+                    };
+
+                    map.insert(key, value);
+                }
+
+                Ok(MapToOneOrMany(map))
+            }
+        }
         deserializer.deserialize_seq(PropertyVisitor)
     }
 }

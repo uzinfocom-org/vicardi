@@ -37,6 +37,7 @@ impl From<Address> for PropertyValue {
                 address.country,
             ]
             .into_iter()
+            .map(PropertyValue::String)
             .collect(),
         )
     }
