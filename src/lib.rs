@@ -4,9 +4,8 @@
 //!
 //!jCard (vCard in JSON format) serde serialization and deserialization.
 //!
-//![![GitHub top language](https://img.shields.io/github/languages/top/uzinfocom-org/vicardi?style=flat-square&logo=github)](https://github.com/uzinfocom-org/vicardi)
-//![![Chat](https://img.shields.io/badge/Chat-grey?style=flat-square&logo=telegram)](https://t.me/xinuxuz)
-//![![Test CI](https://github.com/uzinfocom-org/vicardi/actions/workflows/test.yml/badge.svg)](https://github.com/uzinfocom-org/vicardi/actions/workflows/test.yml)
+//![![GitHub top language](https://img.shields.io/github/languages/top/uzinfocom-org/vicardi?style=flat&logo=nixos&logoColor=ffffff&labelColor=242424&color=242424)](https://github.com/uzinfocom-org/vicardi)
+//![![Test CI](https://img.shields.io/github/actions/workflow/status/uzinfocom-org/vicardi/test.yml?style=flat&logo=github&logoColor=ffffff&labelColor=242424&color=242424)](https://github.com/uzinfocom-org/vicardi/actions/workflows/test.yml)
 //!
 //!</header>
 //!
@@ -71,7 +70,7 @@ pub struct Vcard {
     /// # Notes
     ///
     /// - Do not include the `version` type property in this array. Instead, set the [`Vcard::version`] property.
-    ///   `["version,{},"text",version]` will be inserted by the [`Serialize`] implementation.
+    ///   `["version,{},"text",version]` will be inserted by the \[`Serialize`\] implementation.
     pub properties: Vec<Property>,
 }
 
