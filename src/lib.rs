@@ -45,14 +45,21 @@
 //! [`Vcard::version`] field.
 //!
 //! During serialization, the value of [`Vcard::version`] is placed at index 0 in the properties array.
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde_with::serde_as;
 use std::collections::HashMap;
 
 mod de;
 mod ser;
 
+#[doc(hidden)]
+#[macro_use]
+pub mod macros;
+
 pub use structured::*;
 pub mod structured;
+
+pub type Parameters = HashMap<String, Vec<String>>;
 
 /// A jCard serde type
 #[derive(Debug, Clone, PartialEq)]
@@ -84,7 +91,31 @@ pub struct Property {
     pub name: String,
 
     /// The list of parameters such as the laguage or the preference value.
-    pub parameters: HashMap<String, String>,
+    ///
+    /// The hashmap's value [`Vec`] will be converted to a single string in JSON if it only has 1 element.
+    ///
+    /// ```rust
+    /// # use vicardi::*;
+    /// # use serde_json::json;
+    /// # fn main() -> anyhow::Result<()> {
+    /// let json_array = json!(["", {"foo": ["structured"]}, "", ""]);
+    /// let property: Property = serde_json::from_value(json_array)?;
+    /// let structured = &property.parameters;
+    /// assert_eq!(
+    ///     structured,
+    ///     &parameters! {"foo" => "structured"}
+    /// );
+    ///
+    /// let json_string = json!(["", {"foo": "structured"}, "", ""]);
+    /// let string = serde_json::to_value(property)?;
+    /// assert_eq!(
+    ///     string,
+    ///     json_string
+    /// );
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub parameters: Parameters,
 
     /// The value type. E.g. `"text"`
     pub value_type: String,
@@ -94,7 +125,9 @@ pub struct Property {
     /// When the array has multiple elements, they are appended at the level of the property array in jCard format:
     ///
     /// ```json
-    /// ["categories", {}, "text", "rust", "serde"]
+    /// ["categories", {}, "text",
+    ///   "rust", "serde"
+    /// ]
     /// ```
     ///
     /// Where rust and serde are [`PropertyValue::String`]
@@ -104,20 +137,71 @@ pub struct Property {
     pub values: Vec<PropertyValue>,
 }
 
-/// A [`Property::values`] can either be a simple string or an array of strings.
+/// A [`Property::values`] can either be a single value or an array of values. See an example json representation for
+/// each variant.
 ///
-/// ```json
-/// ["fn", {}, "text", "Vicardi"]
+/// Per [RFC 7095, Section 3.3.1.3](https://datatracker.ietf.org/doc/html/rfc7095#section-3.3.1.3)
+/// > The array element values MUST have the primitive type that matches the jCard type identifier. In RFC6350,
+/// > there are only structured text values and thus only JSON strings are used. For example, extensions may define
+/// > structured number or boolean values, where JSON number or boolean types MUST be used.
+/// >
+/// > ...
+/// >
+/// > Although it is allowed for a structured property value to hold just one component, it is RECOMMENDED to represent
+/// > it as a single text value instead, omitting the array completely.  Nevertheless, a simple implementation MAY
+/// > choose to retain the array, with a single text value as its element.
 ///
-/// ["org", {}, "text",
-///     ["Organization", "Department", "etc"]
-/// ]
+/// ```rust
+/// # use vicardi::*;
+/// # use serde_json::json;
+/// # fn main() -> anyhow::Result<()> {
+/// let json_array = json!(["structured"]);
+/// let structured: PropertyValue = serde_json::from_value(json_array)?;
+/// assert_eq!(
+///     structured,
+///     PropertyValue::Structured(vec!["structured".into()])
+/// );
+///
+/// let json_string = json!("structured");
+/// let string = serde_json::to_value(structured)?;
+/// assert_eq!(
+///     string,
+///     json_string
+/// );
+/// # Ok(())
+/// # }
 /// ```
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde_as]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValue {
+    /// ```json
+    /// ["fn", {}, "text", "Vicardi"]
+    /// ```
     String(String),
-    Structured(Vec<String>),
+
+    /// ```json
+    /// ["x-use-rust", {}, "boolean", true]
+    /// ```
+    Bool(bool),
+
+    /// ```json
+    /// ["x-karma-points", {}, "integer", 42]
+    /// ```
+    Integer(i64),
+
+    /// ```json
+    /// ["x-grade", {}, "integer", 1.3]
+    /// ```
+    Float(f64),
+
+    /// Example structured string property value:
+    /// ```json
+    /// ["org", {}, "text",
+    ///     ["Organization", "Department", "etc"]
+    /// ]
+    /// ```
+    Structured(Vec<PropertyValue>),
 }
 
 impl Vcard {
@@ -134,7 +218,7 @@ impl Property {
     /// Creates a new property, where [`Property::values`] is a `vec![value]`.
     pub fn new(
         name: impl ToString,
-        parameters: impl Into<Option<HashMap<String, String>>>,
+        parameters: impl Into<Option<Parameters>>,
         value_type: impl ToString,
         value: impl Into<PropertyValue>,
     ) -> Self {
@@ -143,7 +227,7 @@ impl Property {
 
     pub fn new_multivalued(
         name: impl ToString,
-        parameters: impl Into<Option<HashMap<String, String>>>,
+        parameters: impl Into<Option<Parameters>>,
         value_type: impl ToString,
         values: Vec<PropertyValue>,
     ) -> Self {
@@ -179,10 +263,7 @@ impl Property {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn new_fn(
-        formatted: impl ToString,
-        parameters: impl Into<Option<HashMap<String, String>>>,
-    ) -> Self {
+    pub fn new_fn(formatted: impl ToString, parameters: impl Into<Option<Parameters>>) -> Self {
         Self::new("fn", parameters, "text", formatted)
     }
 
@@ -204,7 +285,7 @@ impl Property {
     ///
     /// vcard.push(Property::new_adr(
     ///     address.clone(),
-    ///     Some([("pref".to_string(), "1".to_string())].into_iter().collect())
+    ///     parameters!{"pref" => "1"}
     /// ));
     /// vcard.push(address);
     ///
@@ -241,10 +322,7 @@ impl Property {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn new_adr(
-        address: Address,
-        parameters: impl Into<Option<HashMap<String, String>>>,
-    ) -> Self {
+    pub fn new_adr(address: Address, parameters: impl Into<Option<Parameters>>) -> Self {
         Self::new("adr", parameters, "text", address)
     }
 
@@ -276,7 +354,7 @@ impl Property {
     /// ```
     pub fn new_org(
         org: impl Into<PropertyValue>,
-        parameters: impl Into<Option<HashMap<String, String>>>,
+        parameters: impl Into<Option<Parameters>>,
     ) -> Self {
         Self::new("org", parameters, "text", org)
     }
@@ -307,10 +385,10 @@ impl Property {
     pub fn new_tel(
         phone_type: impl Into<Telephone>,
         number: impl AsRef<str>,
-        parameters: impl Into<Option<HashMap<String, String>>>,
+        parameters: impl Into<Option<Parameters>>,
     ) -> Self {
         let mut parameters = parameters.into().unwrap_or_default();
-        parameters.insert("type".into(), phone_type.into().to_string());
+        parameters.insert("type".into(), vec![phone_type.into().to_string()]);
 
         Self::new("tel", parameters, "uri", format!("tel:{}", number.as_ref()))
     }
@@ -338,10 +416,7 @@ impl Property {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn new_email(
-        email: impl ToString,
-        parameters: impl Into<Option<HashMap<String, String>>>,
-    ) -> Self {
+    pub fn new_email(email: impl ToString, parameters: impl Into<Option<Parameters>>) -> Self {
         Self::new("email", parameters, "text", email.to_string())
     }
 }

@@ -1,9 +1,9 @@
 use serde::{
-    ser::{Error, SerializeSeq as _},
+    ser::{Error, SerializeMap, SerializeSeq as _},
     Serialize,
 };
 
-use crate::{Property, Vcard};
+use crate::{Parameters, Property, PropertyValue, Vcard};
 
 impl Serialize for Vcard {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -53,12 +53,62 @@ impl Serialize for Property {
         let mut seq = serializer.serialize_seq(Some(3 + self.values.len()))?;
 
         seq.serialize_element(&self.name)?;
-        seq.serialize_element(&self.parameters)?;
+        seq.serialize_element(&MapToOneOrMany(&self.parameters))?;
         seq.serialize_element(&self.value_type)?;
         self.values
             .iter()
             .try_for_each(|v| seq.serialize_element(v))?;
 
         seq.end()
+    }
+}
+
+struct MapToOneOrMany<'a>(&'a Parameters);
+
+impl Serialize for MapToOneOrMany<'_> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut map = serializer.serialize_map(Some(self.0.len()))?;
+
+        for (key, value) in self.0 {
+            match value.as_slice() {
+                [] => {
+                    return Err(S::Error::custom(
+                        "vcard property parameter is an empty array",
+                    ))
+                }
+                [single] => map.serialize_entry(key, single)?,
+                multiple => map.serialize_entry(key, multiple)?,
+            }
+        }
+
+        map.end()
+    }
+}
+
+impl Serialize for PropertyValue {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self {
+            PropertyValue::String(string) => serializer.serialize_str(string),
+            PropertyValue::Bool(boolean) => serializer.serialize_bool(*boolean),
+            PropertyValue::Integer(int) => serializer.serialize_i64(*int),
+            PropertyValue::Float(float) => serializer.serialize_f64(*float),
+            PropertyValue::Structured(property_values) => match property_values.as_slice() {
+                [] => Err(S::Error::custom("empty structured value")),
+                [single] => single.serialize(serializer),
+                many => {
+                    let mut seq = serializer.serialize_seq(Some(many.len()))?;
+                    for value in many {
+                        seq.serialize_element(value)?
+                    }
+                    seq.end()
+                }
+            },
+        }
     }
 }
